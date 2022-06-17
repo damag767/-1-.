@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <malloc.h>
+
+int ppp;
+
+
+struct TTuple {
+	char*        name;
+	char*        surname;
+	char*        sex;
+	char*        position;
+	int          salary;
+};
+
+int namecmp(const void* a, const void* b) {
+
+	TTuple aData = *(TTuple*)a;
+	TTuple bData = *(TTuple*)b;
+
+	return strcmp(aData.name, bData.name);
+}
+
+int surnamecmp(const void* a, const void* b) {
+
+	TTuple aData = *(TTuple*)a;
+	TTuple bData = *(TTuple*)b;
+
+	return strcmp(aData.surname, bData.surname);
+}
+
+int sexcmp(const void* a, const void* b) {
+
+	TTuple aData = *(TTuple*)a;
+	TTuple bData = *(TTuple*)b;
+
+	return strcmp(aData.sex, bData.sex);
+}
+
+int positioncmp(const void* a, const void* b) {
+
+	TTuple aData = *(TTuple*)a;
+	TTuple bData = *(TTuple*)b;
+
+	return strcmp(aData.position, bData.position);
+}
+
+int salarycmp (const void* a, const void* b){
+	TTuple aData = *(TTuple*)a;
+	TTuple bData = *(TTuple*)b;
+
+	return aData.salary - bData.salary;
+}
+
+
+int main(int argc, char** argv) {
+	FILE* f;
+	TTuple* dataArr = NULL;
+
+	printf("введите номер операции.По именам - 1; По фамилиям - 2; По полу - 3; По должности - 4; По зарплате - 5; ");
+	scanf("%d", &ppp);
+	
+	if (NULL == (f = fopen("data.csv", "r"))) {
+		fprintf(stderr, "cannot open file");
+		return 1;
+	}
+
+	int i = 0;
+
+	while (!feof(f)) {
+		char buffer[100];
+		char* estr = fgets(buffer, sizeof(buffer), f);
+
+		if (NULL != estr) {
+			TTuple data;
+
+			char* name = strtok(estr, ",");
+			data.name     = (char*)malloc(strlen(name) + 1);
+			strcpy(data.name, name);
+
+			char* surname = strtok(NULL, ",");
+			data.surname = (char*)malloc(strlen(surname) + 1);
+			strcpy(data.surname, surname);
+
+			char* sex = strtok(NULL, ",");
+			data.sex = (char*)malloc(strlen(sex) + 1);
+			strcpy(data.sex, sex);
+
+			char* position = strtok(NULL, ",");
+			data.position = (char*)malloc(strlen(position) + 1);
+			strcpy(data.position, position);
+
+			data.salary   = atoi(strtok(NULL, ","));
+
+			i++;
+			dataArr = (TTuple*)realloc(dataArr, sizeof(TTuple) * i);
+			dataArr[i - 1] = data;
+		}
+	}
+
+	printf("=========================================================================================\n");
+	// Сортировка dataArr(массив TTuple элементов по значению поля name)
+	if (ppp == 1) {
+		qsort(dataArr, i, sizeof(TTuple), namecmp);
+		for (int j = 0; j < i; j++)
+		{
+			TTuple d = dataArr[j];
+			printf("%s:%s:%s:%s:%d\n", d.name, d.surname, d.sex, d.position, d.salary);
+		}
+
+	}else if(ppp==2) {
+		qsort(dataArr, i, sizeof(TTuple), surnamecmp);
+		for (int j = 0; j < i; j++)
+		{
+			TTuple d = dataArr[j];
+			printf("%s:%s:%s:%s:%d\n", d.name, d.surname, d.sex, d.position, d.salary);
+		} 
+	}else if(ppp == 3) {
+		qsort(dataArr, i, sizeof(TTuple), sexcmp);
+		for (int j = 0; j < i; j++)
+		{
+			TTuple d = dataArr[j];
+			printf("%s:%s:%s:%s:%d\n", d.name, d.surname, d.sex, d.position, d.salary);
+		}
+
+	}else if(ppp == 4) {
+			qsort(dataArr, i, sizeof(TTuple), positioncmp);
+			for (int j = 0; j < i; j++)
+			{
+				TTuple d = dataArr[j];
+				printf("%s:%s:%s:%s:%d\n", d.name, d.surname, d.sex, d.position, d.salary);
+			}
+	}
+	else if (ppp == 5) {
+		qsort(dataArr, i, sizeof(TTuple), salarycmp);
+		for (int j = 0; j < i; j++)
+		{
+			TTuple d = dataArr[j];
+			printf("%s:%s:%s:%s:%d\n", d.name, d.surname, d.sex, d.position, d.salary);
+		}
+	}
+	
+	//Освобождение памяти
+	for (int j = 0; j < i; j++) {
+		free(dataArr[j].name);
+		free(dataArr[j].surname);
+		free(dataArr[j].sex);
+		free(dataArr[j].position);
+	}
+	free(dataArr);
+}
